@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import UserModal from "./UserModal";
 import UserForm from "./UserForm";
+import { getUsers, deleteUserId, updateUser, createUser } from "../mockApi";
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
@@ -9,48 +10,40 @@ const UserTable = () => {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
+    const fetchUsers = async () => {
+      // Mock API call
+      const data = await getUsers();
+      //console.log(data);
+      setUsers(data || []);
+    };
+
     fetchUsers();
   }, []);
-
-  const fetchUsers = async () => {
-    // Mock API call
-    const response = await fetch("/api/users");
-    const data = await response.json();
-    //console.log(data);
-    setUsers(data.users || []);
-  };
 
   //console.log(users);
 
   const deleteUser = async (id) => {
     // Mock API call
-    await fetch(`/api/users/${id}`, { method: "DELETE" });
+    deleteUserId(id);
     setUsers(users.filter((user) => user.id !== id));
+    alert("Data deleted successfully");
   };
 
   const saveUser = async (user) => {
     if (editUser) {
       // Mock API call for updating user
-      await fetch(`/api/users/${editUser.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
-      });
+      updateUser(editUser.id, user);
     } else {
       // Mock API call for adding user
-      await fetch(`/api/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
-      });
+      createUser(user);
     }
-    fetchUsers();
+
     setShowModal(false);
     setEditUser(null);
   };
 
   const addUser = (newUser) => {
-    setUsers((prevUsers) => [...prevUsers, newUser.user]); // Add the new user to the list
+    setUsers((prevUsers) => [...prevUsers, newUser]); // Add the new user to the list
   };
 
   const toggleForm = () => {

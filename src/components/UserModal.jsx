@@ -15,6 +15,8 @@ const UserModal = ({ user, onClose, onSave }) => {
 
   const handleSubmit = () => {
     onSave({ name, email, role });
+    alert("Data Updated successfully");
+    window.location.reload();
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createUser } from "../mockApi";
 
 const UserForm = ({ onUserAdded }) => {
   const [name, setName] = useState("");
@@ -9,25 +10,18 @@ const UserForm = ({ onUserAdded }) => {
     event.preventDefault();
 
     const newUser = { name, email, role };
-    //console.log(newUser);
+    console.log(newUser);
 
     // Post the new user data to the mock API
     try {
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newUser),
-      });
+      const data = await createUser(newUser);
 
-      const data = await response.json();
+      console.log(data);
 
-      //console.log(data, data.user.id);
-
-      if (data && data.user.id) {
+      if (data && data.id) {
         onUserAdded(data); // Pass new user data back to the parent
         alert("User added successfully");
+        window.location.reload();
       } else {
         alert("Failed to add user");
       }
