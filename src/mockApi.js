@@ -1,62 +1,26 @@
-import { createServer, Model } from "miragejs";
+import axios from "axios";
 
-export function makeServer() {
-  createServer({
-    models: {
-      user: Model,
-    },
+const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1/user";
 
-    seeds(server) {
-      // Creating some initial users for testing
-      server.create("user", {
-        id: 1,
-        name: "Alice",
-        email: "alice@example.com",
-        role: "Admin",
-      });
-      server.create("user", {
-        id: 2,
-        name: "Bob",
-        email: "bob@example.com",
-        role: "User",
-      });
-      server.create("user", {
-        id: 3,
-        name: "Charlie",
-        email: "charlie@example.com",
-        role: "Manager",
-      });
-    },
+export const getUsers = async () => {
+  const response = await axios.get(BASE_URL);
+  //console.log(response.data);
+  return response.data; // Return users
+};
 
-    routes() {
-      this.namespace = "api"; // This will add '/api' prefix to all routes
+export const createUser = async (user) => {
+  console.log(user);
+  const response = await axios.post(BASE_URL, user);
+  console.log(response);
+  return response.data; // Return the created user
+};
 
-      // Simulating GET /api/users request
-      this.get("/users", (schema) => {
-        // Return all users, wrapping them in an object with a 'users' key
+export const updateUser = async (id, user) => {
+  const response = await axios.put(`${BASE_URL}/${id}`, user);
+  return response.data; // Return the updated user
+};
 
-        return { users: schema.users.all().models.map((user) => user.attrs) };
-      });
-
-      // Simulating POST /api/users request
-      this.post("/users", (schema, request) => {
-        let attrs = JSON.parse(request.requestBody);
-        return schema.users.create(attrs);
-      });
-
-      // Simulating PUT /api/users/:id request
-      this.put("/users/:id", (schema, request) => {
-        let id = request.params.id;
-        let attrs = JSON.parse(request.requestBody);
-        let user = schema.users.find(id);
-        return user.update(attrs);
-      });
-
-      // Simulating DELETE /api/users/:id request
-      this.delete("/users/:id", (schema, request) => {
-        let id = request.params.id;
-        return schema.users.find(id).destroy();
-      });
-    },
-  });
-}
+export const deleteUserId = async (id) => {
+  const response = await axios.delete(`${BASE_URL}/${id}`);
+  return response.data; // Return confirmation
+};
