@@ -1,161 +1,168 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
+const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
 const RoleManagement = () => {
-  // State for roles and permissions
-  const [roles, setRoles] = useState([
-    {
-      id: 1,
-      name: "Admin",
-      permissions: { Read: true, Write: true, Delete: true },
-    },
-    {
-      id: 2,
-      name: "Viewer",
-      permissions: { Read: true, Write: false, Delete: false },
-    },
-  ]);
+  const [users, setUsers] = useState([]); // List of users
+  const [roles, setRoles] = useState([]); // List of roles
+  const [editUserId, setEditUserId] = useState(null); // User currently being edited
+  const [newRole, setNewRole] = useState(""); // Temporary role for editing
 
-  const [permissionsList] = useState(["Read", "Write", "Delete"]);
-  const [formRole, setFormRole] = useState({
-    id: 0,
-    name: "",
-    permissions: { Read: false, Write: false, Delete: false },
-  });
-
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  // Handlers
-  const handleAddOrEditRole = () => {
-    if (isEditMode) {
-      setRoles((prev) =>
-        prev.map((role) => (role.id === formRole.id ? formRole : role))
-      );
-    } else {
-      setRoles((prev) => [
-        ...prev,
-        { ...formRole, id: prev.length ? prev[prev.length - 1].id + 1 : 1 },
-      ]);
+  // Fetch all users
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/user`);
+      setUsers(response.data); // Assuming the API returns an array of users
+    } catch (error) {
+      console.error("Error fetching users:", error);
     }
-    resetForm();
   };
 
-  const handleEditRole = (role) => {
-    setFormRole(role);
-    setIsEditMode(true);
+  // Fetch all users
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/roles`);
+      setRoles(response.data); // Assuming the API returns an array of users
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   };
 
-  const handleDeleteRole = (id) => {
-    setRoles((prev) => prev.filter((role) => role.id !== id));
+  // Update the role of a user
+  const updateRole = async (userId, updatedRole) => {
+    try {
+      await axios.put(`${BASE_URL}/user/${userId}`, { role: updatedRole });
+      alert("Role updated successfully!");
+      fetchUsers(); // Refresh the user list after updating
+      setEditUserId(null); // Exit edit mode
+    } catch (error) {
+      console.error("Error updating role:", error);
+      alert("Failed to update role. Please try again.");
+    }
   };
 
-  const togglePermission = (permission) => {
-    setFormRole((prev) => ({
-      ...prev,
-      permissions: {
-        ...prev.permissions,
-        [permission]: !prev.permissions[permission],
-      },
-    }));
+  // Handle Save Role
+  const handleSaveRole = (userId) => {
+    if (!newRole.trim()) {
+      alert("Role cannot be empty.");
+      return;
+    }
+    updateRole(userId, newRole);
+    addRole(newRole, roles);
   };
 
-  const resetForm = () => {
-    setFormRole({
-      id: 0,
-      name: "",
-      permissions: { Read: false, Write: false, Delete: false },
-    });
-    setIsEditMode(false);
+  const addRole = async (newRole, entities) => {
+    try {
+      // Check if the role already exists in any entity
+      const roleExists = entities.some((entity) =>
+        entity.role.includes(newRole)
+      );
+
+      if (roleExists) {
+        return;
+      }
+
+      // Create a new entity with a unique ID, role, and permission
+      const newEntity = {
+        id: (entities.length + 1).toString(), // Simple example for generating unique IDs
+        createdAt: new Date().toISOString(),
+        role: newRole, // Adding the new role
+        permission: [], // Add permissions if needed
+      };
+
+      // Send the new entity to the API
+      const response = await axios.post(`${BASE_URL}/roles`, newEntity);
+
+      if (response.status === 201) {
+        alert(`New entity with role "${newRole}" created successfully!`);
+      } else {
+        alert("Failed to create a new entity. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating the entity:", error);
+      alert("An error occurred while creating the entity.");
+    }
   };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
 
   return (
-    <div className="p-6 bg-gray-100 rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Role Management</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Role Management</h1>
 
-      {/* Form for Adding/Editing Roles */}
+      {/* User List */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold">
-          {isEditMode ? "Edit Role" : "Add Role"}
-        </h3>
-        <div className="flex flex-col space-y-4 mt-2">
-          <input
-            type="text"
-            placeholder="Role Name"
-            value={formRole.name}
-            onChange={(e) => setFormRole({ ...formRole, name: e.target.value })}
-            className="p-2 border rounded-lg"
-          />
-
-          <div>
-            <h4 className="font-semibold">Permissions:</h4>
-            <div className="flex space-x-4 mt-2">
-              {permissionsList.map((permission, index) => (
-                <label key={index} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={formRole.permissions[permission]}
-                    onChange={() => togglePermission(permission)}
-                  />
-                  <span>{permission}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex space-x-4">
-            <button
-              onClick={handleAddOrEditRole}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            >
-              {isEditMode ? "Update" : "Add"}
-            </button>
-            {isEditMode && (
-              <button
-                onClick={resetForm}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Role List */}
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 p-2">Role Name</th>
-            <th className="border border-gray-300 p-2">Permissions</th>
-            <th className="border border-gray-300 p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {roles.map((role) => (
-            <tr key={role.id}>
-              <td className="border border-gray-300 p-2">{role.name}</td>
-              <td className="border border-gray-300 p-2">
-                {permissionsList
-                  .filter((perm) => role.permissions[perm])
-                  .join(", ")}
-              </td>
-              <td className="border border-gray-300 p-2 space-x-2">
-                <button
-                  onClick={() => handleEditRole(role)}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded-lg"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteRole(role.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-lg"
-                >
-                  Delete
-                </button>
-              </td>
+        <h2 className="text-xl font-semibold mb-2">Users</h2>
+        <table className="table-auto w-full border-collapse border border-gray-200">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-200 px-4 py-2">Name</th>
+              <th className="border border-gray-200 px-4 py-2">Email</th>
+              <th className="border border-gray-200 px-4 py-2">Role</th>
+              <th className="border border-gray-200 px-4 py-2">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="border border-gray-200 px-4 py-2">
+                  {user.name}
+                </td>
+                <td className="border border-gray-200 px-4 py-2">
+                  {user.email}
+                </td>
+                <td className="border border-gray-200 px-4 py-2 w-[200px]">
+                  {editUserId === user.id ? (
+                    <input
+                      type="text"
+                      value={newRole}
+                      onChange={(e) => setNewRole(e.target.value)}
+                      placeholder="Enter new role"
+                      className="border p-2 rounded w-[150px]"
+                    />
+                  ) : (
+                    user.role || "No Role Assigned"
+                  )}
+                </td>
+                <td className="border border-gray-200 px-4 py-2 w-[250px] text-center">
+                  {editUserId === user.id ? (
+                    <div>
+                      <button
+                        onClick={() => handleSaveRole(user.id)}
+                        className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditUserId(null)}
+                        className="bg-gray-500 text-white px-4 py-2 rounded"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setEditUserId(user.id);
+                        setNewRole(user.role || ""); // Initialize with the current role
+                      }}
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                      Edit Role
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

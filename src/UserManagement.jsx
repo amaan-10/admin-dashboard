@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { deleteUserId, getUsers, updateUser } from "./mockApi";
+import { createUser, deleteUserId, getUsers, updateUser } from "./mockApi";
+import UserModal from "./components/UserModal";
 
 const UserManagement = () => {
   // State for users and roles
@@ -17,37 +19,50 @@ const UserManagement = () => {
   }, []);
 
   const [roles] = useState(["Admin", "Project Manager", "Viewer"]);
-  const [newUser, setNewUser] = useState(null);
 
-  // Form state for adding/editing a user
-  const [formUser, setFormUser] = useState({
-    id: 0,
-    name: "",
-    email: "",
-    role: "Viewer",
-    status: "Active",
-  });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("User"); // Default role
 
-  const [isEditMode, setIsEditMode] = useState(false);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  // Handlers
-  const handleAddOrEditUser = () => {
-    if (isEditMode) {
-      setUsers((prev) =>
-        prev.map((user) => (user.id === formUser.id ? formUser : user))
-      );
-    } else {
-      setUsers((prev) => [
-        ...prev,
-        { ...formUser, id: prev.length ? prev[prev.length - 1].id + 1 : 1 },
-      ]);
+    const newUser = { name, email, role, status: "Active" };
+    console.log(newUser);
+
+    // Post the new user data to the mock API
+    try {
+      const data = await createUser(newUser);
+
+      console.log(data);
+
+      if (data && data.id) {
+        setUsers(data); // Pass new user data back to the parent
+        alert("User added successfully");
+        window.location.reload();
+      } else {
+        alert("Failed to add user");
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
+      alert("Error adding user");
     }
-    resetForm();
   };
 
-  const handleEditUser = (user) => {
-    setFormUser(user);
-    setIsEditMode(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editUser, setEditUser] = useState(null);
+
+  const saveUser = async (user) => {
+    if (editUser) {
+      // Mock API call for updating user
+      updateUser(editUser.id, user);
+    } else {
+      // Mock API call for adding user
+      createUser(user);
+    }
+
+    setShowModal(false);
+    setEditUser(null);
   };
 
   const handleDeleteUser = (id) => {
@@ -58,7 +73,6 @@ const UserManagement = () => {
 
   const handleToggleStatus = async (id, currentStatus) => {
     const updatedStatus = currentStatus === "Active" ? "Inactive" : "Active"; // Toggle the status
-
     try {
       // Prepare the updated user object
       const updatedUser = {
@@ -80,17 +94,6 @@ const UserManagement = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormUser({
-      id: 0,
-      name: "",
-      email: "",
-      role: "Viewer",
-      status: "Active",
-    });
-    setIsEditMode(false);
-  };
-
   //   console.log(users);
   return (
     <div className="p-6 bg-gray-100 rounded-lg">
@@ -98,51 +101,47 @@ const UserManagement = () => {
 
       {/* Form for Adding/Editing Users */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold">
-          {isEditMode ? "Edit User" : "Add User"}
-        </h3>
-        <div className="flex space-x-4 mt-2">
-          <input
-            type="text"
-            placeholder="Name"
-            value={formUser.name}
-            onChange={(e) => setFormUser({ ...formUser, name: e.target.value })}
-            className="p-2 border rounded-lg"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={formUser.email}
-            onChange={(e) =>
-              setFormUser({ ...formUser, email: e.target.value })
-            }
-            className="p-2 border rounded-lg"
-          />
-          <select
-            value={formUser.role}
-            onChange={(e) => setFormUser({ ...formUser, role: e.target.value })}
-            className="p-2 border rounded-lg"
-          >
-            {roles.map((role, index) => (
-              <option key={index} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleAddOrEditUser}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-          >
-            {isEditMode ? "Update" : "Add"}
-          </button>
-          {isEditMode && (
-            <button
-              onClick={resetForm}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg"
+        <h3 className="text-lg font-semibold">Add User</h3>
+        <div>
+          <form className="flex space-x-4 mt-2" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="p-2 border rounded-lg"
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="p-2 border rounded-lg"
+              required
+            />
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="p-2 border rounded-lg"
+              required
             >
-              Cancel
+              <option className=" text-slate-500" value="">
+                User Role
+              </option>
+              {roles.map((role, index) => (
+                <option key={index} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+            >
+              Add
             </button>
-          )}
+          </form>
         </div>
       </div>
 
@@ -163,10 +162,10 @@ const UserManagement = () => {
               <td className="border border-gray-300 p-2">{user.name}</td>
               <td className="border border-gray-300 p-2">{user.email}</td>
               <td className="border border-gray-300 p-2">{user.role}</td>
-              <td className="border border-gray-300 p-2">
+              <td className="border border-gray-300 p-2 text-center">
                 <button
                   onClick={() => handleToggleStatus(user.id, user.status)}
-                  className={`px-2 py-1 rounded-lg ${
+                  className={`px-2 py-1 rounded-lg w-[75px] ${
                     user.status === "Active"
                       ? "bg-green-500 text-white"
                       : "bg-red-500 text-white"
@@ -175,9 +174,12 @@ const UserManagement = () => {
                   {user.status === "Active" ? "Active" : "Inactive"}
                 </button>
               </td>
-              <td className="border border-gray-300 p-2 space-x-2">
+              <td className="border border-gray-300 p-2 space-x-2 text-center">
                 <button
-                  onClick={() => handleEditUser(user)}
+                  onClick={() => {
+                    setEditUser(user);
+                    setShowModal(true);
+                  }}
                   className="bg-yellow-500 text-white px-3 py-1 rounded-lg"
                 >
                   Edit
@@ -193,6 +195,13 @@ const UserManagement = () => {
           ))}
         </tbody>
       </table>
+      {showModal && (
+        <UserModal
+          user={editUser}
+          onClose={() => setShowModal(false)}
+          onSave={saveUser}
+        />
+      )}
     </div>
   );
 };
