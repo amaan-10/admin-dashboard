@@ -59,7 +59,7 @@ const UserTable = () => {
       >
         {showForm ? "Cancel" : "Add User"}
       </button>
-      {showForm && <UserForm onUserAdded={addUser} />}{" "}
+      {showForm && <UserForm onUserAdded={addUser} />}
       {/* Show the form if true */}
       <table className="mt-4 table-auto w-full border-collapse border border-gray-300">
         <thead>
