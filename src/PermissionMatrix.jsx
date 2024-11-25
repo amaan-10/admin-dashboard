@@ -1,166 +1,223 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
 
-const PermissionMatrix = () => {
-  const [roles, setRoles] = useState([]);
-  const [permissionsInput, setPermissionsInput] = useState({});
-  const [newPermission, setNewPermission] = useState(""); // State for the custom permission input
+const RolePermissionManager = () => {
+  const [roles, setRoles] = useState([]); // Unique roles
+  const [users, setUsers] = useState([]); // All users
+  const [permissions, setPermissions] = useState({}); // Role-permission mapping
+  const [newPermission, setNewPermission] = useState(""); // Input for new permission
+  const [selectedRole, setSelectedRole] = useState(""); // Role currently being edited
 
-  // Fetch roles from the API
+  // Fetch users and extract roles
   useEffect(() => {
-    const fetchRoles = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/roles`);
-        setRoles(response.data);
+        const response = await axios.get(`${BASE_URL}/user`); // Replace with your API endpoint
+        const userData = response.data;
+        setUsers(userData);
+
+        // Extract unique roles
+        const uniqueRoles = [
+          ...new Set(userData.map((user) => user.role)),
+        ].filter((role) => role); // Remove empty/null roles
+        setRoles(uniqueRoles);
+
+        // Initialize permissions mapping
+        const rolePermissions = {};
+        uniqueRoles.forEach((role) => {
+          rolePermissions[role] = []; // Default empty permissions
+        });
+        setPermissions(rolePermissions);
       } catch (error) {
-        console.error("Error fetching roles:", error);
+        console.error("Error fetching users:", error);
       }
     };
 
-    fetchRoles();
+    fetchUsers();
   }, []);
 
-  // Handle changes in the permission checkboxes for each role
-  const handlePermissionChange = (roleId, permission) => {
-    setPermissionsInput((prevInput) => {
-      const updatedPermissions = prevInput[roleId] || [];
+  // Add a new permission to the selected role
+  const addPermission = () => {
+    if (!newPermission.trim() || !selectedRole) return;
 
-      if (updatedPermissions.includes(permission)) {
-        // If permission is already in the array, remove it
-        return {
-          ...prevInput,
-          [roleId]: updatedPermissions.filter((perm) => perm !== permission),
-        };
-      } else {
-        // If permission is not in the array, add it
-        return {
-          ...prevInput,
-          [roleId]: [...updatedPermissions, permission],
-        };
-      }
-    });
+    setPermissions((prevPermissions) => ({
+      ...prevPermissions,
+      [selectedRole]: prevPermissions[selectedRole]?.includes(newPermission)
+        ? prevPermissions[selectedRole] // Ignore if already exists
+        : [...prevPermissions[selectedRole], newPermission],
+    }));
+
+    setNewPermission(""); // Clear input
   };
 
-  // Handle the addition of a custom permission
-  const handleAddCustomPermission = (roleId) => {
-    if (newPermission.trim()) {
-      setPermissionsInput((prevInput) => {
-        const updatedPermissions = prevInput[roleId] || [];
+  // Toggle a permission for a role
+  const togglePermission = (role, permission) => {
+    setPermissions((prevPermissions) => ({
+      ...prevPermissions,
+      [role]: prevPermissions[role]?.includes(permission)
+        ? prevPermissions[role].filter((perm) => perm !== permission) // Remove permission
+        : [...prevPermissions[role], permission], // Add permission
+    }));
+  };
 
-        // Add the custom permission to the array if it's not already added
-        if (!updatedPermissions.includes(newPermission)) {
-          return {
-            ...prevInput,
-            [roleId]: [...updatedPermissions, newPermission],
-          };
+  // Save updated permissions to all users with the selected role
+  // Helper function to add a delay (in milliseconds)
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const savePermissionsForRole = async () => {
+    try {
+      const usersWithRole = users.filter((user) => user.role === selectedRole);
+      if (usersWithRole.length === 0) {
+        alert(`No users found with the role "${selectedRole}".`);
+        return;
+      }
+
+      const updatePromises = usersWithRole.map(async (user, index) => {
+        // Fetch the existing permissions from the user
+        const currentPermissions = user.permissions || [];
+        //console.log(user);
+
+        // Get the new permission that you want to append (from input or checkboxes)
+        const newPermissions = permissions[selectedRole] || [];
+
+        // Merge the current permissions with the new permissions, avoiding duplicates
+        const updatedPermissions = [
+          ...new Set([...currentPermissions, ...newPermissions]), // Append new values, removing duplicates
+        ];
+
+        const updatedUser = {
+          id: user.id,
+          permissions: updatedPermissions, // Updated permission array
+        };
+
+        try {
+          // Add delay before each update
+          if (index > 0) {
+            await delay(2000); // Delay of 1500ms before sending each request
+          }
+
+          const response = await axios.put(
+            `${BASE_URL}/user/${user.id}`,
+            updatedUser
+          );
+          //console.log("Response for user:", response); // Log response for debugging
+          //return response.data;
+        } catch (error) {
+          console.error("Error updating user:", error.response?.data || error);
+          alert(
+            `Failed to update user with id ${user.id}: ${
+              error.response?.data?.message || error.message
+            }`
+          );
+          return null;
         }
       });
-      setNewPermission(""); // Clear the input field after adding the permission
-    }
-  };
 
-  // Save the updated permissions for a particular role
-  const savePermissions = async (roleId) => {
-    const updatedPermissions = permissionsInput[roleId] || [];
+      const results = await Promise.all(updatePromises);
+      const failedUpdates = results.filter((result) => result === null);
 
-    try {
-      const response = await axios.put(`${BASE_URL}/roles/${roleId}`, {
-        permissions: updatedPermissions,
-      });
-
-      if (response.status === 200) {
+      if (failedUpdates.length === 0) {
         alert("Permissions updated successfully!");
       } else {
-        alert("Failed to update permissions.");
+        alert(`Failed to update ${failedUpdates.length} users.`);
       }
     } catch (error) {
       console.error("Error updating permissions:", error);
-      alert("An error occurred while updating the permissions.");
+      alert("An error occurred while updating permissions.");
     }
   };
 
   return (
     <div className="container mx-auto p-5">
-      <h2 className="text-3xl font-bold text-center mb-5">Permission Matrix</h2>
-      <table className="min-w-full table-auto border-collapse bg-white shadow-md rounded-lg">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="py-2 px-4 text-left border-b">Role</th>
-            <th className="py-2 px-4 text-left border-b">Permissions</th>
-            <th className="py-2 px-4 text-left border-b">
-              Add Custom Permission
-            </th>
-            <th className="py-2 px-4 text-left border-b">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {roles.map((role) => (
-            <tr key={role.id} className="border-b hover:bg-gray-50">
-              <td className="py-2 px-4">{role.role}</td>
-              <td className="py-2 px-4">
-                {["Read", "Write", "Update", "Delete"].map((permission) => (
-                  <div key={permission} className="flex items-center space-x-2">
+      <h2 className="text-2xl font-bold mb-4">Role Permission Manager</h2>
+      <div className="space-y-6">
+        {/* Role Selection */}
+        <div>
+          <label htmlFor="role-select" className="block font-medium">
+            Select Role:
+          </label>
+          <select
+            id="role-select"
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="border rounded-md p-2 w-full"
+          >
+            <option value="">-- Select a Role --</option>
+            {roles.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Permissions Section */}
+        {selectedRole && (
+          <div className="p-4 border rounded-md shadow-sm">
+            <h3 className="text-lg font-semibold">
+              Permissions for {selectedRole}
+            </h3>
+            <p className="text-sm text-gray-500">
+              Current Permissions:{" "}
+              {permissions[selectedRole]?.join(", ") || "None"}
+            </p>
+
+            <div className="mt-4">
+              {/* Checkboxes for existing permissions */}
+              <div className="flex flex-wrap gap-4">
+                {permissions[selectedRole]?.map((permission) => (
+                  <label
+                    key={permission}
+                    className="flex items-center space-x-2"
+                  >
                     <input
                       type="checkbox"
-                      checked={
-                        permissionsInput[role.id]?.includes(permission) ||
-                        role.permissions?.includes(permission) ||
-                        false
-                      }
+                      checked={permissions[selectedRole]?.includes(permission)}
                       onChange={() =>
-                        handlePermissionChange(role.id, permission)
+                        togglePermission(selectedRole, permission)
                       }
-                      className="h-4 w-4 text-blue-500 border-gray-300 rounded"
+                      className="form-checkbox"
                     />
-                    <label>{permission}</label>
-                  </div>
+                    <span>{permission}</span>
+                  </label>
                 ))}
-                {/* Display custom permissions */}
-                {(permissionsInput[role.id] || []).map(
-                  (permission, index) =>
-                    !["Read", "Write", "Update", "Delete"].includes(
-                      permission
-                    ) && (
-                      <div key={index} className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-700">
-                          {permission}
-                        </span>
-                      </div>
-                    )
-                )}
-              </td>
-              <td className="py-2 px-4">
-                {/* Custom permission input */}
+              </div>
+
+              {/* Input to add new permission */}
+              <div className="mt-4 flex space-x-2">
                 <input
                   type="text"
+                  placeholder="Add new permission"
                   value={newPermission}
                   onChange={(e) => setNewPermission(e.target.value)}
-                  placeholder="Enter custom permission"
-                  className="p-2 border border-gray-300 rounded-md"
+                  className="border rounded-md p-2 w-full"
                 />
                 <button
-                  onClick={() => handleAddCustomPermission(role.id)}
-                  className="ml-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300"
+                  onClick={addPermission}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
                 >
                   Add
                 </button>
-              </td>
-              <td className="py-2 px-4">
-                <button
-                  onClick={() => savePermissions(role.id)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
-                >
-                  Save
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Save Permissions Button */}
+      {selectedRole && (
+        <button
+          onClick={savePermissionsForRole}
+          className="mt-8 px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600"
+        >
+          Save Permissions for {selectedRole}
+        </button>
+      )}
     </div>
   );
 };
 
-export default PermissionMatrix;
+export default RolePermissionManager;
