@@ -76,7 +76,7 @@ const RolePermissionManager = () => {
     }));
   };
 
-  console.log(permissions);
+  // console.log(permissions);
 
   // Save updated permissions to all users with the selected role
   // Helper function to add a delay (in milliseconds)
@@ -85,41 +85,40 @@ const RolePermissionManager = () => {
   const savePermissionsForRole = async () => {
     try {
       const usersWithRole = users.filter((user) => user.role === selectedRole);
+
       if (usersWithRole.length === 0) {
         alert(`No users found with the role "${selectedRole}".`);
         return;
       }
 
-      const updatePromises = usersWithRole.map(async (user, index) => {
-        // Fetch the existing permissions from the user
+      for (const [index, user] of usersWithRole.entries()) {
         const currentPermissions = user.permissions || [];
-        //console.log(user);
 
         // Get the new permission that you want to append (from input or checkboxes)
         const newPermissions = permissions[selectedRole] || [];
 
         // Merge the current permissions with the new permissions, avoiding duplicates
         const updatedPermissions = [
-          ...new Set([...currentPermissions, ...newPermissions]), // Append new values, removing duplicates
+          ...new Set([...currentPermissions, ...newPermissions]),
         ];
 
         const updatedUser = {
           id: user.id,
-          permissions: updatedPermissions, // Updated permission array
+          permissions: updatedPermissions,
         };
 
         try {
-          // Add delay before each update
-          if (index > 0) {
-            await delay(2000); // Delay of 1500ms before sending each request
-          }
+          // Add delay before each API request
+          console.log(
+            `Processing user ${index + 1}/${usersWithRole.length}...`
+          );
+          await delay(10); // Delay of 2000ms (2 seconds)
 
           const response = await axios.put(
             `${BASE_URL}/user/${user.id}`,
             updatedUser
           );
-          //console.log("Response for user:", response); // Log response for debugging
-          //return response.data;
+          console.log(`Response for user ${user.id}:`, response.data);
         } catch (error) {
           console.error("Error updating user:", error.response?.data || error);
           alert(
@@ -127,18 +126,10 @@ const RolePermissionManager = () => {
               error.response?.data?.message || error.message
             }`
           );
-          return null;
         }
-      });
-
-      const results = await Promise.all(updatePromises);
-      const failedUpdates = results.filter((result) => result === null);
-
-      if (failedUpdates.length === 0) {
-        alert("Permissions updated successfully!");
-      } else {
-        alert(`Failed to update ${failedUpdates.length} users.`);
       }
+
+      alert("Permissions updated successfully!");
     } catch (error) {
       console.error("Error updating permissions:", error);
       alert("An error occurred while updating permissions.");
