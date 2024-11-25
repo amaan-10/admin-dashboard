@@ -25,11 +25,24 @@ const RolePermissionManager = () => {
         ].filter((role) => role); // Remove empty/null roles
         setRoles(uniqueRoles);
 
-        // Initialize permissions mapping
         const rolePermissions = {};
+
         uniqueRoles.forEach((role) => {
-          rolePermissions[role] = []; // Default empty permissions
+          // Fetch permissions for each role based on users
+          const roleUsers = userData.filter((user) => user.role === role);
+          const rolePerms = roleUsers.reduce((acc, user) => {
+            if (user.permissions) {
+              user.permissions.forEach((perm) => {
+                if (!acc.includes(perm)) {
+                  acc.push(perm);
+                }
+              });
+            }
+            return acc;
+          }, []);
+          rolePermissions[role] = rolePerms;
         });
+
         setPermissions(rolePermissions);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -62,6 +75,8 @@ const RolePermissionManager = () => {
         : [...prevPermissions[role], permission], // Add permission
     }));
   };
+
+  console.log(permissions);
 
   // Save updated permissions to all users with the selected role
   // Helper function to add a delay (in milliseconds)
