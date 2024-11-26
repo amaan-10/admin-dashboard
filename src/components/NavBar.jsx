@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import logo from "../assets/flowaccess.png";
+import logo from "../assets/flowaccess.ico";
 
 const NavBar = () => {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -24,21 +24,32 @@ const NavBar = () => {
   return (
     <div>
       {/* Navigation Menu */}
-      <nav className="p-4 bg-gray-800 text-white flex justify-between">
-        <img src={logo} alt="FlowAccess" />
+      <nav className="p-4 bg-gray-800 text-white flex justify-between items-center">
+        <div className=" pl-4 flex items-center gap-4">
+          <img src={logo} width={46} height={46} alt="FlowAccess" />
+          <span className="text-2xl font-bold">FlowAccess</span>
+        </div>
 
-        <ul className="flex gap-4">
+        <ul className="flex gap-5">
           <li>
-            <Link to="/">Dashboard</Link>
+            <Link className="hover:underline" to="/">
+              Dashboard
+            </Link>
           </li>
           <li>
-            <Link to="/user-management">User Management</Link>
+            <Link className="hover:underline" to="/user-management">
+              User Management
+            </Link>
           </li>
           <li>
-            <Link to="/role-management">Role Management</Link>
+            <Link className="hover:underline" to="/role-management">
+              Role Management
+            </Link>
           </li>
           <li>
-            <Link to="/permission-management">Permission Management</Link>
+            <Link className="hover:underline" to="/permission-management">
+              Permission Management
+            </Link>
           </li>
         </ul>
         <div className="  ">
