@@ -127,7 +127,6 @@ const RolePermissionManager = () => {
           );
         }
       }
-
       alert("Permissions updated successfully!");
       setProccessing("");
     } catch (error) {
