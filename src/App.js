@@ -2,7 +2,7 @@ import React from "react";
 import RoleManagement from "./RoleManagement";
 import UserManagement from "./UserManagement";
 import PermissionMatrix from "./PermissionMatrix";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import { ToastContainer } from "react-toastify";
 import LoginPage from "./LoginPage";
@@ -10,23 +10,15 @@ import RegisterPage from "./RegisterPage";
 import "@fortawesome/fontawesome-free/css/all.css";
 import "react-toastify/dist/ReactToastify.css";
 import NavBar from "./components/NavBar";
+import PrivateRoute from "./components/PrivateRoute";
 
 const App = () => {
   return (
     <>
       <ToastContainer />
       <div>
-        {/* Define Routes */}
         <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <NavBar />
-                <Dashboard />
-              </>
-            }
-          />
+          {/* Public Routes */}
           <Route
             path="/login"
             element={
@@ -45,33 +37,60 @@ const App = () => {
               </>
             }
           />
+
           <Route
-            path="/user-management"
+            path="/"
             element={
               <>
                 <NavBar />
-                <UserManagement />
+                <Dashboard />
               </>
+            }
+          />
+
+          {/* Protected Routes */}
+          <Route
+            path="/user-management"
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <NavBar />
+                    <UserManagement />
+                  </>
+                }
+              />
             }
           />
           <Route
             path="/role-management"
             element={
-              <>
-                <NavBar />
-                <RoleManagement />
-              </>
+              <PrivateRoute
+                element={
+                  <>
+                    <NavBar />
+                    <RoleManagement />
+                  </>
+                }
+              />
             }
           />
           <Route
             path="/permission-management"
             element={
-              <>
-                <NavBar />
-                <PermissionMatrix />
-              </>
+              <PrivateRoute
+                element={
+                  <>
+                    <NavBar />
+                    <PermissionMatrix />
+                  </>
+                }
+              />
             }
           />
+
+          {/* Redirect to login if no other routes match */}
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </div>
     </>
