@@ -11,6 +11,9 @@ const RolePermissionManager = () => {
   const [newPermission, setNewPermission] = useState(""); // Input for new permission
   const [selectedRole, setSelectedRole] = useState(""); // Role currently being edited
   const [proccessing, setProccessing] = useState(""); // Proccessing
+  const [uniquePermissions, setUniquePermissions] = useState([]); // Unique permissions
+
+  console.log(uniquePermissions);
 
   // Fetch users and extract roles
   useEffect(() => {
@@ -45,6 +48,13 @@ const RolePermissionManager = () => {
         });
 
         setPermissions(rolePermissions);
+
+        const allPermissions = new Set();
+        userData.forEach((user) => {
+          user.permissions?.forEach((perm) => allPermissions.add(perm));
+        });
+
+        setUniquePermissions(Array.from(allPermissions));
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -135,14 +145,44 @@ const RolePermissionManager = () => {
     }
   };
 
+  // Handle permission toggle
+  const handlePermissionChange = (userId, permission) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => {
+        if (user.id === userId) {
+          const updatedPermissions = user.permissions.includes(permission)
+            ? user.permissions.filter((perm) => perm !== permission) // Remove permission
+            : [...user.permissions, permission]; // Add permission
+
+          return { ...user, permissions: updatedPermissions };
+        }
+        return user;
+      })
+    );
+  };
+
+  // Save updated user data to API
+  const savePermissions = async (userId) => {
+    try {
+      const user = users.find((u) => u.id === userId);
+      await axios.put(`${BASE_URL}/user/${userId}`, {
+        permissions: user.permissions,
+      });
+      alert(`Permissions updated for ${userId}`);
+    } catch (error) {
+      console.error("Error saving permissions:", error);
+      alert("Failed to update permissions.");
+    }
+  };
+
   return (
-    <div className="container mx-auto p-5">
-      <h2 className="text-2xl font-bold mb-4">Role Permission Manager</h2>
+    <div className=" bg-gray-100 p-6">
+      <h2 className="text-2xl font-bold mb-4">Role-Permission Manager</h2>
       <div className="space-y-6">
         {/* Role Selection */}
         <div>
           <label htmlFor="role-select" className="block font-medium">
-            Select Role:
+            Set new Permission:
           </label>
           <select
             id="role-select"
@@ -222,6 +262,57 @@ const RolePermissionManager = () => {
           Save Permissions for {selectedRole}
         </button>
       )}
+      {/* User vs Role vs Permissions Table */}
+      <div className="container mx-auto mt-8">
+        <h2 className="text-xl font-bold mb-4">User Permissions Table</h2>
+        <table className="table-auto w-full border-collapse border border-gray-300">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 px-4 py-2 w-24">User ID</th>
+              <th className="border border-gray-300 px-4 py-2 w-80">Name</th>
+              <th className="border border-gray-300 px-4 py-2 w-80">Role</th>
+
+              <th className="border border-gray-300 px-4 py-2 w-80">
+                Permissions
+              </th>
+              <th className="border border-gray-300 px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="border border-gray-300 px-4 py-2">{user.id}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.name}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.role}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  {uniquePermissions.map((perm) => (
+                    <div className="flex items-center pl-24">
+                      <input
+                        type="checkbox"
+                        checked={user.permissions?.includes(perm)}
+                        onChange={() => handlePermissionChange(user.id, perm)}
+                      />
+                      <span className=" pl-2 pr-4">{perm}</span>
+                    </div>
+                  ))}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button
+                    onClick={() => savePermissions(user.id)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  >
+                    Save
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

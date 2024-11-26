@@ -93,12 +93,12 @@ const RoleManagement = () => {
   }, []);
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-gray-100 ">
       <h1 className="text-2xl font-bold mb-4">Role Management</h1>
 
       {/* User List */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">Users</h2>
+        <h2 className="text-xl font-bold mb-4">Users Role Table</h2>
         <table className="table-auto w-full border-collapse border border-gray-200">
           <thead>
             <tr className="bg-gray-100">

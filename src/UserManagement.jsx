@@ -97,7 +97,7 @@ const UserManagement = () => {
   //   console.log(users);
   return (
     <div className="p-6 bg-gray-100 rounded-lg">
-      <h2 className="text-xl font-bold mb-4">User Management</h2>
+      <h2 className="text-2xl font-bold mb-4">User Management</h2>
 
       {/* Form for Adding/Editing Users */}
       <div className="mb-6">
@@ -146,6 +146,7 @@ const UserManagement = () => {
       </div>
 
       {/* User List */}
+      <h2 className="text-xl font-bold mb-4">Users Table</h2>
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr>
