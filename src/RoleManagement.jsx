@@ -4,7 +4,6 @@ import axios from "axios";
 const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
 const RoleManagement = () => {
   const [users, setUsers] = useState([]); // List of users
-  const [roles, setRoles] = useState([]); // List of roles
   const [editUserId, setEditUserId] = useState(null); // User currently being edited
   const [newRole, setNewRole] = useState(""); // Temporary role for editing
 
@@ -13,16 +12,6 @@ const RoleManagement = () => {
     try {
       const response = await axios.get(`${BASE_URL}/user`);
       setUsers(response.data); // Assuming the API returns an array of users
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  // Fetch all users
-  const fetchRoles = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/roles`);
-      setRoles(response.data); // Assuming the API returns an array of users
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -48,48 +37,10 @@ const RoleManagement = () => {
       return;
     }
     updateRole(userId, newRole);
-    addRole(newRole, roles);
-  };
-
-  const addRole = async (newRole, entities) => {
-    try {
-      // Check if the role already exists in any entity
-      const roleExists = entities.some((entity) =>
-        entity.role.includes(newRole)
-      );
-
-      if (roleExists) {
-        return;
-      }
-
-      // Create a new entity with a unique ID, role, and permission
-      const newEntity = {
-        id: (entities.length + 1).toString(), // Simple example for generating unique IDs
-        createdAt: new Date().toISOString(),
-        role: newRole, // Adding the new role
-        permission: [], // Add permissions if needed
-      };
-
-      // Send the new entity to the API
-      const response = await axios.post(`${BASE_URL}/roles`, newEntity);
-
-      if (response.status === 201) {
-        alert(`New entity with role "${newRole}" created successfully!`);
-      } else {
-        alert("Failed to create a new entity. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error creating the entity:", error);
-      alert("An error occurred while creating the entity.");
-    }
   };
 
   useEffect(() => {
     fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    fetchRoles();
   }, []);
 
   return (
