@@ -19,7 +19,7 @@ const Dashboard = () => {
           below.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
           {/* User Management */}
           <Link
             to="/user-management"
@@ -58,8 +58,9 @@ const Dashboard = () => {
       </main>
 
       <footer className="w-full bg-gray-800 text-white text-center py-4 mt-8">
-        <p className="text-sm">
-          &copy; 2024 Permission Management System. All rights reserved.
+        <p className=" text-[14px]">
+          &copy; 2024 <span className=" font-bold">FlowAccess</span>. All rights
+          reserved.
         </p>
       </footer>
     </div>
