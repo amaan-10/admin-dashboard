@@ -10,7 +10,7 @@ const NavBar = () => {
   //check if user is logged in or not
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log(token);
+    //console.log(token);
     setLoggedIn(!!token);
   }, [location.pathname]);
 
@@ -25,10 +25,10 @@ const NavBar = () => {
     <div>
       {/* Navigation Menu */}
       <nav className="p-4 bg-gray-800 text-white flex justify-between items-center">
-        <div className=" pl-4 flex items-center gap-4">
+        <Link className=" pl-4 flex items-center gap-4" to="/">
           <img src={logo} width={46} height={46} alt="FlowAccess" />
           <span className="text-2xl font-bold">FlowAccess</span>
-        </div>
+        </Link>
 
         <ul className="flex gap-5">
           <li>
@@ -57,13 +57,7 @@ const NavBar = () => {
             <Link
               onClick={handleLogout}
               to="/login"
-              className=" bg-red-700 mx-2 py-2 px-4 rounded"
-              style={{
-                textDecoration: "none",
-                fontSize: "14px",
-                color: "white",
-                width: "110px",
-              }}
+              className=" bg-red-700 mx-2 py-2 px-4 rounded-md no-underline font-medium text-white "
             >
               Log Out
             </Link>
@@ -71,13 +65,13 @@ const NavBar = () => {
             <>
               <Link
                 to="/login"
-                className="login-btn bg-white mx-2 py-2 px-3 border rounded font-medium no-underline text-black"
+                className="login-btn bg-white mx-2 py-2 px-3 rounded-md font-medium no-underline text-black"
               >
                 LogIn
               </Link>
               <Link
                 to="/register"
-                className="signup-btn bg-blue-800 ml-1 py-2 px-3 border rounded font-medium no-underline text-white"
+                className="signup-btn bg-blue-700 ml-1 py-2 px-3 rounded-md font-medium no-underline text-white"
               >
                 SignUp
               </Link>
