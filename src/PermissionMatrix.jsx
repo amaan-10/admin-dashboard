@@ -10,6 +10,7 @@ const RolePermissionManager = () => {
   const [permissions, setPermissions] = useState({}); // Role-permission mapping
   const [newPermission, setNewPermission] = useState(""); // Input for new permission
   const [selectedRole, setSelectedRole] = useState(""); // Role currently being edited
+  const [proccessing, setProccessing] = useState(""); // Proccessing
 
   // Fetch users and extract roles
   useEffect(() => {
@@ -109,10 +110,8 @@ const RolePermissionManager = () => {
 
         try {
           // Add delay before each API request
-          console.log(
-            `Processing user ${index + 1}/${usersWithRole.length}...`
-          );
-          await delay(10); // Delay of 2000ms (2 seconds)
+          setProccessing(`Setting Permissions...`);
+          await delay(10); // Delay of 10ms
 
           const response = await axios.put(
             `${BASE_URL}/user/${user.id}`,
@@ -130,6 +129,7 @@ const RolePermissionManager = () => {
       }
 
       alert("Permissions updated successfully!");
+      setProccessing("");
     } catch (error) {
       console.error("Error updating permissions:", error);
       alert("An error occurred while updating permissions.");
@@ -170,6 +170,7 @@ const RolePermissionManager = () => {
               Current Permissions:{" "}
               {permissions[selectedRole]?.join(", ") || "None"}
             </p>
+            <p className="text-sm text-gray-500">{proccessing}</p>
 
             <div className="mt-4">
               {/* Checkboxes for existing permissions */}
