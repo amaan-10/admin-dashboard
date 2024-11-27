@@ -57,7 +57,7 @@ const Dashboard = () => {
         </div>
       </main>
 
-      <footer className="w-full bg-gray-800 text-white text-center py-4 mt-8">
+      <footer className="w-full bg-gray-800 text-white text-center py-4 mt-24">
         <p className=" text-[14px]">
           &copy; 2024 <span className=" font-bold">FlowAccess</span>. All rights
           reserved.
