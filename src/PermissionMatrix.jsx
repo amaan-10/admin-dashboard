@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { getUsers, updateUser } from "./mockApi";
 
 const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
 
@@ -13,14 +14,13 @@ const RolePermissionManager = () => {
   const [proccessing, setProccessing] = useState(""); // Proccessing
   const [uniquePermissions, setUniquePermissions] = useState([]); // Unique permissions
 
-  console.log(uniquePermissions);
+  //console.log(uniquePermissions);
 
   // Fetch users and extract roles
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/user`); // Replace with your API endpoint
-        const userData = response.data;
+        const userData = await getUsers();
         setUsers(userData);
 
         // Extract unique roles
@@ -123,11 +123,9 @@ const RolePermissionManager = () => {
           setProccessing(`Setting Permissions...`);
           await delay(10); // Delay of 10ms
 
-          const response = await axios.put(
-            `${BASE_URL}/user/${user.id}`,
-            updatedUser
-          );
-          console.log(`Response for user ${user.id}:`, response.data);
+          updateUser(user.id, updatedUser);
+
+          //console.log(`Response for user ${user.id}:`, response.data);
         } catch (error) {
           console.error("Error updating user:", error.response?.data || error);
           alert(
@@ -165,7 +163,7 @@ const RolePermissionManager = () => {
   const savePermissions = async (userId) => {
     try {
       const user = users.find((u) => u.id === userId);
-      await axios.put(`${BASE_URL}/user/${userId}`, {
+      updateUser(userId, {
         permissions: user.permissions,
       });
       alert(`Permissions updated for ${userId}`);
@@ -290,7 +288,7 @@ const RolePermissionManager = () => {
                 </td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
                   {uniquePermissions.map((perm) => (
-                    <div className="flex items-center pl-24">
+                    <div key={perm} className="flex items-center pl-24">
                       <input
                         type="checkbox"
                         checked={user.permissions?.includes(perm)}
