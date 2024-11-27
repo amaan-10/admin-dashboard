@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getUsers, updateUser } from "./mockApi";
 
-const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
 const RoleManagement = () => {
   const [users, setUsers] = useState([]); // List of users
   const [editUserId, setEditUserId] = useState(null); // User currently being edited
@@ -10,8 +9,9 @@ const RoleManagement = () => {
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/user`);
-      setUsers(response.data); // Assuming the API returns an array of users
+      const data = await getUsers();
+      //console.log(data);
+      setUsers(data || []);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -20,7 +20,7 @@ const RoleManagement = () => {
   // Update the role of a user
   const updateRole = async (userId, updatedRole) => {
     try {
-      await axios.put(`${BASE_URL}/user/${userId}`, { role: updatedRole });
+      updateUser(userId, { role: updatedRole });
       alert("Role updated successfully!");
       fetchUsers(); // Refresh the user list after updating
       setEditUserId(null); // Exit edit mode
