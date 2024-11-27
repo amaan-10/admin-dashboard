@@ -12,6 +12,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 // import { BASE_URL } from "../url";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { setCredentials } from "./mockApi";
 
 const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
 
@@ -39,7 +40,7 @@ const RegisterPage = () => {
         return toast.error("Please Provide all Fields");
       }
 
-      const { data } = await axios.post(`${BASE_URL}/auth`, {
+      const { data } = await setCredentials({
         createdAt: new Date().toISOString(),
         name,
         email,
@@ -130,8 +131,9 @@ const RegisterPage = () => {
                 <option value="User">User</option>
               </select>
             </div>
-            <br />
-            <Link to="/login">I am already member</Link>
+            <div className=" text-blue-600 underline text-center">
+              <Link to="/login">I am already a member</Link>
+            </div>
             <div className="form-group form-button">
               <button
                 type="submit"

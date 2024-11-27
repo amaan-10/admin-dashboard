@@ -188,7 +188,9 @@ const RolePermissionManager = () => {
             onChange={(e) => setSelectedRole(e.target.value)}
             className="border rounded-md p-2 w-full"
           >
-            <option value="">-- Select a Role --</option>
+            <option value="" disabled>
+              -- Select a Role --
+            </option>
             {roles.map((role) => (
               <option key={role} value={role}>
                 {role}

@@ -18,11 +18,11 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
-  const [roles] = useState(["Admin", "Project Manager", "Viewer"]);
+  const [roles] = useState(["Admin", "Manager", "User"]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("User"); // Default role
+  const [role, setRole] = useState(""); // Default role
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -126,7 +126,7 @@ const UserManagement = () => {
               className="p-2 border rounded-lg"
               required
             >
-              <option className=" text-slate-500" value="">
+              <option value="" disabled>
                 User Role
               </option>
               {roles.map((role, index) => (

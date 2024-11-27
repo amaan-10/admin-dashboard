@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import InputForm from "../src/components/InputForm";
 import { toast } from "react-toastify";
-
-const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
+import { getCredentials } from "./mockApi";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -34,10 +32,11 @@ const LoginPage = () => {
 
     try {
       // Fetch all user data from mockapi.io
-      const response = await axios.get(`${BASE_URL}/auth`);
+      const response = await getCredentials();
+      //console.log(response);
 
       // Find a user with matching email and password
-      const user = response.data.find(
+      const user = response.find(
         (u) => u.email === email && u.password === password
       );
 
@@ -92,7 +91,7 @@ const LoginPage = () => {
               className="agree-term"
             />
           </div> */}
-          <div className="signup-image-link">
+          <div className=" text-blue-600 underline text-center">
             <Link to="/register">Create an account</Link>
           </div>
           <div className="form-group form-button">
