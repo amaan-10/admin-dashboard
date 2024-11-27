@@ -28,13 +28,13 @@ const UserManagement = () => {
     event.preventDefault();
 
     const newUser = { name, email, role, status: "Active" };
-    console.log(newUser);
+    //console.log(newUser);
 
     // Post the new user data to the mock API
     try {
       const data = await createUser(newUser);
 
-      console.log(data);
+      //console.log(data);
 
       if (data && data.id) {
         setUsers(data); // Pass new user data back to the parent
