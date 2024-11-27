@@ -9,8 +9,8 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [role, setRole] = useState("");
   //const [token, setToken] = useState("");
-
   const generateToken = (length) => {
     const characters =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -46,6 +46,8 @@ const LoginPage = () => {
         toast.success("Login Successfully");
         // Save user data or session token
         localStorage.setItem("token", token);
+        localStorage.setItem("role", user.role);
+        setRole(user.role);
         navigate("/");
       } else {
         // Login failed
