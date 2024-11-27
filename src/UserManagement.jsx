@@ -22,7 +22,7 @@ const UserManagement = () => {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState(""); // Default role
+  const [role, setRole] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
