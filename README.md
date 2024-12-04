@@ -1,10 +1,5 @@
-<div>
-  <img src="src/assets/flowaccess.ico" width="69" height="66"/>  <h3>FlowAccess</h3>
-  <p>
-    FlowAccess is a web-based Role-Based Access Control (RBAC) management platform designed to simplify the management of users, roles, and permissions in an organization. The platform enables secure and efficient access control with features for assigning roles and permissions dynamically.
-    <br />
-  </p>
-</div>
+
+<img src="src/assets/flowaccess.ico" width="69" height="66"/>
 
 # FlowAccess
 
