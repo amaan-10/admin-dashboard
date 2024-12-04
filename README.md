@@ -1,70 +1,154 @@
-# Getting Started with Create React App
+# FlowAccess
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+FlowAccess is a web-based Role-Based Access Control (RBAC) management platform designed to simplify the management of users, roles, and permissions in an organization. The platform enables secure and efficient access control with features for assigning roles and permissions dynamically.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **User Management**:
+  - View, add, edit, and delete users.
+  - Assign roles to users.
+  - Manage user status (Active/Inactive).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Role Management**:
+  - Create, update, and delete roles.
+  - Assign permissions to roles dynamically.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Permission Matrix**:
+  - View and edit the permissions for each role.
+  - Append or remove permissions dynamically for any role.
 
-### `npm test`
+- **RBAC Implementation**:
+  - Secure pages and actions based on roles and permissions.
+  - Navigation restrictions for unauthorized users.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Technology Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Frontend**: React.js with Tailwind CSS for styling.
+- **Backend**: Node.js and Express.js.
+- **Database**: MongoDB.
+- **Libraries/Tools**:
+  - Axios for API calls.
+  - React Router for routing.
+  - Toastify for notifications.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Setup Instructions
 
-### `npm run eject`
+### Prerequisites
+- Node.js and npm installed.
+- MongoDB set up locally or using a cloud service like MongoDB Atlas.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Installation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/FlowAccess.git
+cd FlowAccess
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. Install dependencies:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm install
+```
+3. Set up environment variables:
 
-## Learn More
+Create a `.env` file in the root directory and add the following:
+```bash
+REACT_APP_API_BASE_URL=http://localhost:5000/api //I have used mockApi
+```
+4. Start the development server:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm start
+```
+5. Start the backend server (if not running):
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Navigate to the backend directory (if separate) and start the server:
+```bash
+node server.js
+```
 
-### Code Splitting
+### Folder Structure
+----------------
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+`FlowAccess/
+├── src/
+│   ├── components/         # Reusable components like NavBar, PrivateRoute
+│   ├── pages/              # Pages like Dashboard, LoginPage, UserManagement
+│   ├── utils/              # Helper functions and API utilities
+│   ├── App.js              # Main application component
+│   ├── index.js            # Entry point for React
+│   ├── styles/             # Tailwind CSS setup and global styles
+├── public/                 # Static assets
+├── .env                    # Environment variables
+├── package.json            # Dependencies and scripts
+├── README.md               # Project documentation`
 
-### Analyzing the Bundle Size
+* * * * *
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### API Endpoints
+-------------
 
-### Making a Progressive Web App
+#### **Users**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+-   `GET /api/users` -- Fetch all users.
+-   `PUT /api/users/:id` -- Update a user's role or permissions.
+-   `POST /api/users` -- Add a new user.
 
-### Advanced Configuration
+#### **Roles**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+-   `GET /api/roles` -- Fetch unique roles from the users collection.
+-   `POST /api/roles` -- Create a new role.
 
-### Deployment
+#### **Permissions**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+-   `GET /api/permissions` -- Fetch permissions for all roles.
+-   `PUT /api/roles/:role/permissions` -- Append new permissions to a role.
 
-### `npm run build` fails to minify
+* * * * *
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Usage
+-----
+
+1.  **Authentication**:
+
+    -   Access `/login` and `/register` for authentication.
+    -   Protected routes redirect to login if no token is found in local storage.
+2.  **User & Role Management**:
+
+    -   Navigate to **User Management** for managing users and assigning roles.
+    -   Go to **Role Management** to define new roles and view existing ones.
+3.  **Permissions Management**:
+
+    -   Use the **Permission Matrix** to dynamically assign or remove permissions for roles.
+    -   All changes to permissions are immediately reflected for users with the associated role.
+
+* * * * *
+
+### License
+-------
+
+This project is licensed under the MIT License.
+
+* * * * *
+
+### Author
+------
+
+**Amaan Shaikh**
+
+FlowAccess is a robust and intuitive solution for managing role-based access control efficiently. Contributions and suggestions are welcome!
+
+
+ `### Updates Based on FlowAccess Features:
+- **Roles are derived dynamically** from the users' collection and stored as a unique array.
+- The permission matrix is tied to dynamically fetched roles.
+- User permissions are stored and managed within the users' collection.
+
+Let me know if further refinements are needed!`
