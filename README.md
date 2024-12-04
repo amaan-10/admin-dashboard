@@ -1,5 +1,5 @@
 
-<img src="src/assets/flowaccess.ico" width="69" height="66"/>
+<img src="src/assets/flowaccess.ico" width="59" height="56"/>
 
 # FlowAccess
 
