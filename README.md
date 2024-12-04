@@ -28,7 +28,7 @@ FlowAccess is a web-based Role-Based Access Control (RBAC) management platform d
 ## Technology Stack
 
 - **Frontend**: React.js with Tailwind CSS for styling.
-- **Backend**: Node.js and Express.js.
+- **Backend**: mockApi.js
 - **Database**: MongoDB.
 - **Libraries/Tools**:
   - Axios for API calls.
@@ -60,35 +60,41 @@ npm install
 
 Create a `.env` file in the root directory and add the following:
 ```bash
-REACT_APP_API_BASE_URL=http://localhost:5000/api //I have used mockApi
+REACT_APP_API_BASE_URL=http://localhost:5000/api      #I have used mockApi
 ```
 4. Start the development server:
 
 ```bash
 npm start
 ```
-5. Start the backend server (if not running):
-
-Navigate to the backend directory (if separate) and start the server:
-```bash
-node server.js
-```
 
 ### Folder Structure
 ----------------
 
-`FlowAccess/
+```bash
+FlowAccess/
 ├── src/
 │   ├── components/         # Reusable components like NavBar, PrivateRoute
+│   │   ├── NavBar.jsx
+│   │   ├── InputForm.jsx
+│   │   ├── PrivateRoute.js
+│   │   ├── UserModal.jsx
 │   ├── pages/              # Pages like Dashboard, LoginPage, UserManagement
-│   ├── utils/              # Helper functions and API utilities
+│   │   ├── Dashboard.js
+│   │   ├── LoginPage.jsx
+│   │   ├── RegisterPage.jsx
+│   │   ├── UserManagement.jsx
+│   │   ├── RoleManagement.jsx
+│   │   ├── PermissionManagement.jsx
 │   ├── App.js              # Main application component
 │   ├── index.js            # Entry point for React
+│   ├── mockApi.js          # Mock Api point for all API handling
 │   ├── styles/             # Tailwind CSS setup and global styles
 ├── public/                 # Static assets
 ├── .env                    # Environment variables
 ├── package.json            # Dependencies and scripts
-├── README.md               # Project documentation`
+├── README.md               # Project documentation
+```
 
 * * * * *
 
@@ -101,15 +107,10 @@ node server.js
 -   `PUT /api/users/:id` -- Update a user's role or permissions.
 -   `POST /api/users` -- Add a new user.
 
-#### **Roles**
+#### **Auth**
 
--   `GET /api/roles` -- Fetch unique roles from the users collection.
--   `POST /api/roles` -- Create a new role.
-
-#### **Permissions**
-
--   `GET /api/permissions` -- Fetch permissions for all roles.
--   `PUT /api/roles/:role/permissions` -- Append new permissions to a role.
+-   `GET /api/auth` -- Fetch users for login credentials.
+-   `POST /api/auth` -- Append new user to a collections.
 
 * * * * *
 
@@ -146,9 +147,9 @@ This project is licensed under the MIT License.
 FlowAccess is a robust and intuitive solution for managing role-based access control efficiently. Contributions and suggestions are welcome!
 
 
- `### Updates Based on FlowAccess Features:
+#### Updates Based on FlowAccess Features:
 - **Roles are derived dynamically** from the users' collection and stored as a unique array.
 - The permission matrix is tied to dynamically fetched roles.
 - User permissions are stored and managed within the users' collection.
 
-Let me know if further refinements are needed!`
+Let me know if further refinements are needed!
