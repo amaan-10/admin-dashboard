@@ -1,12 +1,12 @@
 import React from "react";
-import RoleManagement from "./RoleManagement";
-import UserManagement from "./UserManagement";
-import PermissionMatrix from "./PermissionMatrix";
+import RoleManagement from "./pages/RoleManagement";
+import UserManagement from "./pages/UserManagement";
+import PermissionMatrix from "./pages/PermissionMatrix";
 import { Route, Routes, Navigate } from "react-router-dom";
-import Dashboard from "./Dashboard";
+import Dashboard from "./pages/Dashboard";
 import { ToastContainer } from "react-toastify";
-import LoginPage from "./LoginPage";
-import RegisterPage from "./RegisterPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import "@fortawesome/fontawesome-free/css/all.css";
 import "react-toastify/dist/ReactToastify.css";
 import NavBar from "./components/NavBar";

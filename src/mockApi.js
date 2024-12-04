@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://6741af83e4647499008e74a7.mockapi.io/api/v1";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const getUsers = async () => {
   const response = await axios.get(`${BASE_URL}/user`);
